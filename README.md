@@ -12,6 +12,7 @@ This project focuses on implementing modern Redux patterns and handling server s
 - Redux Toolkit
 - RTK Query
 - Vite
+- VS Code
 
 ---
 
