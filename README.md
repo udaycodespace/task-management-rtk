@@ -1,71 +1,85 @@
-# Task Management Application (Redux Toolkit & RTK Query)
+# Task Management Application (Evolution: v1.0  v2.0)
 
 A professional React application demonstrating centralized state management and automated API synchronization. Developed as part of the internship learning phase at **Inkers Technology Private Limited**.
 
+## 🔄 Project Evolution (The "Ownership" Transition)
+
+This project began as a standard implementation of the assigned requirements (v1.0) but was proactively upgraded to a production-simulated environment (v2.0) to ensure data persistence and usability.
+
+| Feature | Initial Requirement (v1.0) | My Enhanced Implementation (v2.0) |
+| --- | --- | --- |
+| **Data Source** | JSONPlaceholder (Resets on refresh) | **MockAPI.io (Persistent Database)** |
+| **Input Logic** | Hardcoded String ("New Intern Task") | **Dynamic User Input Form** |
+| **CRUD Scope** | Add / Delete / Toggle Status | **Add / Delete / Toggle / Edit Title** |
+| **User Experience** | Native Browser `alert()` | **React-Toastify Notifications** |
+| **UI Design** | Basic List | **Professional High-Contrast Dashboard** |
+
+---
+
 ## 🎯 Project Objectives & Intern POV
-The objective was to move beyond local component state and implement a "Single Source of Truth" architecture. My approach involved breaking down the high-level requirements into **10 Sequential Issues**, which I solved stage-by-stage to ensure code quality and cache integrity.
+
+The objective was to move beyond local component state and implement a **"Single Source of Truth"** architecture. My approach involved breaking down the high-level requirements into sequential issues, solving them stage-by-stage to ensure code quality and cache integrity.
 
 ---
 
 ## 🛠 Tech Stack
-- **Core:** React (Vite)
-- **State:** Redux Toolkit (Slices & Middleware)
-- **Data:** RTK Query (Caching & Mutations)
-- **API:** JSONPlaceholder (REST)
+
+* **Core:** React (Vite)
+* **State:** Redux Toolkit (Slices & Middleware)
+* **Data:** RTK Query (Automated Caching & Mutations)
+* **Backend:** MockAPI (RESTful Persistence)
+* **UI:** React-Toastify & CSS Variables
 
 ---
 
 ## 🏗 Technical Justification (The "Why")
+
 To meet the expectations of my mentors, I implemented the following architectural patterns:
-- **RTK Query over `useEffect`**: I replaced manual data fetching with RTK Query hooks to eliminate the "loading/error/data" boilerplate and ensure efficient server-state management.
-- **Tag-Based Invalidation**: I used `providesTags` and `invalidatesTags` to solve the problem of manual UI refreshing. This ensures the app is "reactive" to server changes.
-- **Global Auth Store**: Authentication is handled in a dedicated Redux Slice, ensuring that `isAuthenticated` state is accessible to all components without prop-drilling.
+
+* **RTK Query over `useEffect**`: I replaced manual data fetching with RTK Query hooks to eliminate the "loading/error/data" boilerplate.
+* **Tag-Based Invalidation**: I used `providesTags` and `invalidatesTags`. This ensures the app is "reactive"—automatically refetching the list only when a mutation occurs.
+* **Global Auth Store**: Authentication is handled in a dedicated Redux Slice, ensuring that `isAuthenticated` state is accessible to all components without prop-drilling.
 
 ---
 
-## 📈 The 10-Issue Roadmap (Stage-by-Stage Solution)
+## 📈 The Development Roadmap
 
-### Phase 1: Foundation & Auth
-* **Issue #1: Project Initialization** - Set up the Vite environment and professional folder structure.
-* **Issue #2: Redux Store Setup** - Configured `store.js` and integrated middleware for RTK Query.
-* **Issue #3: Auth Slice & Login Flow** - Created `authSlice.js`. *Solved by implementing conditional rendering to protect task data.*
+### Phase 1: Foundation (The Base)
 
-### Phase 2: RTK Query Integration
-* **Issue #4: API Base Setup** - Initialized `tasksApi.js` using `createApi` and `fetchBaseQuery`.
-* **Issue #5: Fetch Query** - Implemented `getTasks`. *Solved by removing local state dependency for API data.*
-* **Issue #6: Add & Delete Mutations** - Defined `addTask` and `deleteTask` with proper HTTP methods.
-* **Issue #7: Update Mutation** - Implemented `updateTask` to toggle completion status.
+* **Issue #1:** Project Initialization & Folder Structure (`features/`).
+* **Issue #2:** Redux Store Configuration with Middleware.
+* **Issue #3:** Auth Slice & Login Flow implementation.
 
-### Phase 3: Cache & UI Optimization
-* **Issue #8: UI Feedback States** - Integrated `isLoading` and `isError`. *Solved by providing real-time feedback during network requests.*
-* **Issue #9: Cache Invalidation (The Magic)** - Implemented `tagTypes`. *Solved by ensuring the UI automatically refetches data after any mutation.*
-* **Issue #10: Final Review & Documentation** - Finalized the README and Git workflow to demonstrate clear ownership.
+### Phase 2: RTK Query Integration (The Logic)
+
+* **Issue #4:** API Setup using `createApi` and `fetchBaseQuery`.
+* **Issue #5:** Implemented `getTasks` to remove local state dependency.
+* **Issue #6:** Defined Mutations for `addTask`, `deleteTask`, and `updateTask`.
+
+### Phase 3: Proactive Refinements (The Upgrade)
+
+* **Issue #7 - Persistence:** Migrated `baseUrl` to MockAPI to solve data loss on refresh.
+* **Issue #8 - Edit Capability:** Added local state handling to allow users to **Rename** tasks, not just toggle them.
+* **Issue #9 - UX Polish:** Replaced alerts with Toasts and added a clean, "Edge-style" CSS theme.
 
 ---
 
 ## 📂 Project Structure
+
 ```text
 task-management-rtk/
 ├── src/
-│   ├── app/ 
-│   │   └── store.js         # Centralized Store
-│   ├── components/ 
-│   │   └── Tasks.jsx        # UI with Mutation Logic
-│   ├── features/
-│   │   ├── auth/            # authSlice.js (Global State)
-│   │   └── tasks/           # tasksApi.js (API & Caching)
-│   └── main.jsx             # Provider Wrapper
-└── .gitignore               # Professional Git Exclusions
+│   ├── app/ 
+│   │   └── store.js         # Centralized Store
+│   ├── components/ 
+│   │   └── Tasks.jsx        # UI with Edit/Delete/Toggle Logic
+│   ├── features/
+│   │   ├── auth/            # authSlice.js (Global State)
+│   │   └── tasks/           # tasksApi.js (API & Caching)
+│   └── main.jsx             # Provider & Toast Wrapper
+└── README.md                # Documentation
 
 ```
-
----
-
-## 🔮 Future Enhancements
-
-* **Persistence**: Integrating `redux-persist` to save the Auth state across browser refreshes.
-* **Real Backend**: Moving from mock APIs to a database for true data persistence.
-* **Optimistic Updates**: Updating the UI state *before* the server response to maximize responsiveness.
 
 ---
 
