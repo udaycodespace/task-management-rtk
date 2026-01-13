@@ -1,81 +1,146 @@
-// src/components/Tasks.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   useGetTasksQuery, 
   useAddTaskMutation, 
-  useUpdateTaskMutation, 
-  useDeleteTaskMutation 
+  useDeleteTaskMutation, 
+  useUpdateTaskMutation 
 } from '../features/tasks/tasksApi';
+import { toast } from 'react-toastify';
 
 const Tasks = () => {
-  const { data: tasks, isLoading, isError, error } = useGetTasksQuery();
+  // 1. New State for Editing
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [taskInput, setTaskInput] = useState('');
+
+  const { data: tasks, isLoading, isError } = useGetTasksQuery();
   const [addTask, { isLoading: isAdding }] = useAddTaskMutation();
   const [deleteTask] = useDeleteTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
 
-  // Issue #8: Handle Loading and Error States
-  if (isLoading) return <div>Loading tasks from API...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
-
-  // Optimized Add Handler with Alert
-  const handleAdd = async () => {
+  // Add Task
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!taskInput.trim()) return;
     try {
-      await addTask({ title: 'New Intern Task', completed: false, userId: 1 }).unwrap();
-      alert('Task Added (Server Mocked Success)');
+      await addTask({ title: taskInput, completed: false, userId: 1 }).unwrap();
+      setTaskInput('');
+      toast.success('Task Added Successfully');
     } catch (err) {
-      alert('Failed to add task');
+      toast.error('Failed to add task');
     }
   };
 
-  // Optimized Delete Handler with Alert
-  const handleDelete = async (id) => {
+  // 2. Start Editing Mode
+  const startEdit = (task) => {
+    setEditingId(task.id);
+    setEditTitle(task.title);
+  };
+
+  // 3. Cancel Editing
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle('');
+  };
+
+  // 4. Save Edited Task
+  const saveEdit = async (task) => {
+    if (!editTitle.trim()) return;
     try {
-      await deleteTask(id).unwrap();
-      alert(`Task ${id} Deleted (Server Mocked Success)`);
+      // KEEP completed status same, update TITLE
+      await updateTask({ ...task, title: editTitle }).unwrap();
+      setEditingId(null);
+      toast.success('Task Updated');
     } catch (err) {
-      alert('Failed to delete task');
+      toast.error('Failed to update task');
     }
   };
 
-  // Optimized Toggle Handler
-  const handleToggle = async (task) => {
-    try {
-      await updateTask({ id: task.id, completed: !task.completed }).unwrap();
-      alert(`Task status updated!`);
-    } catch (err) {
-      alert('Failed to update status');
+  const handleToggle = (task) => {
+    updateTask({ ...task, completed: !task.completed });
+  };
+
+  const handleDelete = (id) => {
+    if(window.confirm('Are you sure?')) {
+       deleteTask(id);
     }
   };
 
   return (
-    <div style={{ textAlign: 'left', marginTop: '20px' }}>
-      <h2>Tasks</h2>
-      <button onClick={handleAdd} disabled={isAdding}>
-        {isAdding ? 'Adding...' : 'Add Sample Task'}
-      </button>
+    <div style={{ border: '2px solid black', padding: '30px', boxShadow: '8px 8px 0px #000' }}>
+      <h2 style={{ marginTop: 0, textTransform: 'uppercase', letterSpacing: '2px' }}>Task Manager</h2>
+
+      {/* Add Form */}
+      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
+        <input 
+          type="text" 
+          value={taskInput}
+          onChange={(e) => setTaskInput(e.target.value)}
+          placeholder="Enter new task..."
+          style={{ flexGrow: 1 }}
+        />
+        <button type="submit" disabled={isAdding}>
+          {isAdding ? 'Wait...' : 'Add Task'}
+        </button>
+      </form>
+
+      {isLoading && <p>Loading...</p>}
+      {isError && <p style={{color: 'red'}}>Error connecting to server</p>}
 
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {tasks?.map((task) => (
-          <li key={task.id} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', padding: '10px 0' }}>
-            <span style={{ 
-              textDecoration: task.completed ? 'line-through' : 'none',
-              marginRight: '15px',
-              display: 'inline-block',
-              width: '300px'
-            }}>
-              {task.title}
-            </span>
+          <li key={task.id} style={{ 
+            borderBottom: '1px solid #ddd', 
+            padding: '15px 0', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px' 
+          }}>
             
-            <button onClick={() => handleToggle(task)}>
-              Toggle Status
-            </button>
-            
-            <button 
-              onClick={() => handleDelete(task.id)} 
-              style={{ color: 'red', marginLeft: '10px' }}
-            >
-              Delete
-            </button>
+            {/* EDIT MODE Logic */}
+            {editingId === task.id ? (
+              <>
+                <input 
+                  type="text" 
+                  value={editTitle} 
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  style={{ flexGrow: 1 }}
+                  autoFocus
+                />
+                <button onClick={() => saveEdit(task)} style={{ background: 'black', color: 'white' }}>Save</button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              // VIEW MODE Logic
+              <>
+                <input 
+                  type="checkbox" 
+                  checked={task.completed} 
+                  onChange={() => handleToggle(task)}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                />
+                
+                <span style={{ 
+                  flexGrow: 1, 
+                  textDecoration: task.completed ? 'line-through' : 'none',
+                  color: task.completed ? '#888' : 'black',
+                  fontWeight: 500
+                }}>
+                  {task.title}
+                </span>
+
+                <button onClick={() => startEdit(task)}>Edit</button>
+                
+                <button 
+                  onClick={() => handleDelete(task.id)}
+                  style={{ borderColor: '#ff4444', color: '#ff4444' }}
+                  onMouseEnter={(e) => {e.target.style.background = '#ff4444'; e.target.style.color='white'}}
+                  onMouseLeave={(e) => {e.target.style.background = 'white'; e.target.style.color='#ff4444'}}
+                >
+                  Delete
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>
